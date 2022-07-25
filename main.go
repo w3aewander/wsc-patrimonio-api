@@ -46,7 +46,7 @@ func main() {
 				map[string]string{"route": "/api/patrimonios", "method": "GET", "description": "listar todos os patrimonios registrados na base de dados"},
 				map[string]string{"route": "/api/patrimonio/add", "method": "POST", "description": "adicionar um novo patrimonio na base de dados"},
 				map[string]string{"route": "/api/patrimonio/{id}/show", "method": "GET", "description": "exibir um patrimonio"},
-				map[string]string{"route": "/api/patrimonio/update", "method": "POST", "description": "atuaizar um patrimonio"},
+				map[string]string{"route": "/api/patrimonio/update", "method": "PUT", "description": "atuaizar um patrimonio"},
 				map[string]string{"route": "/api/patrimonio/{id}/delete", "method": "DELETE", "description": "excluir um patrimonio"},
 			},
 		})
