@@ -103,7 +103,6 @@ const listar = async (e) => {
   const resp = await fetch(`${endpoint}patrimonios`)
   const  json = await resp.json()
 
-  let html = ""
 
   let registro = 0
 
@@ -112,7 +111,7 @@ const listar = async (e) => {
    // if ( registro > 0 ) { usar apenas se o csv tiver titulo
       console.log(el)
 
-      html += `<tr>
+      html = `<tr>
         <td>${el.id}</td>
         <td>${el.tipo}</td>
         <td>${el.modelo}</td>
@@ -124,12 +123,12 @@ const listar = async (e) => {
       </tr>`
    // }  
 
-  registro++
+      $('#tb-body').append(html)
+  
+      registro++
 
   });
   
-  $('#tb-body').append(html)
-  html = ""
-
+  
 
 }
