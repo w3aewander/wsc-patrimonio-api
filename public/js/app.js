@@ -42,6 +42,7 @@ const excluir = (e) => {
      response.json().then ( r => console.log(r))
      novo()
      listar()
+     location.reload()
   })
   .catch(err => {
     console.error(err);
@@ -88,6 +89,7 @@ const incluir =  (e) =>  {
      response.json().then ( r => console.log(r))
      novo()
      listar()
+     location.reload()
   })
   .catch(err => {
     console.error(err);
@@ -113,6 +115,7 @@ const incluir =  (e) =>  {
      response.json().then ( r => console.log(r))
      novo()
      listar()
+     location.reload()
   })
   .catch(err => {
     console.error(err);
