@@ -22,11 +22,6 @@ const novo = (e) => {
   })
   
 }
-
-const editar = (e) => {
-  alert($(e).attr("data-patrimonio"))
-
-  }
   
 const excluir = (e) => {
 
@@ -131,14 +126,16 @@ const incluir =  (e) =>  {
 }
 
 
-const atualizar = (e) => {
+const editar = (e) => {
 
 
-  $('#patrimonio').val(e.target.patrimonio)
-  $('#tipo').val(e.target.tipo)
-  $('#modelo').val(e.target.modelo)
-  $('#observacao').val(e.target.observacao)
-
+  const registro =  e.parentNode.parentNode
+  
+  $('#patrimonio').val(   $(registro).attr('data-patrimonio') )
+  $('#tipo').val(  $(registro).attr('data-tipo') )
+  $('#modelo').val(  $(registro).attr('data-modelo') )
+  $('#observacao').val(  $(registro).attr('data-observacao') )
+  
 
 }
 
@@ -155,14 +152,14 @@ const listar = async (e) => {
    // if ( registro > 0 ) { usar apenas se o csv tiver titulo
       console.log(el)
 
-      html = `<tr>
+      html = `<tr data-patrimonio="${el.id}" data-tipo="${el.tipo}" data-tipo="${el.modelo} data-observacao="${el.observacao}">
         <td>${el.id}</td>
         <td>${el.tipo}</td>
         <td>${el.modelo}</td>
-        <td>${el.observacao}</td>
+        <td>${el.observacao}</td> 
         <td>
-          <button class="btn btn-primary btn-sm" data-patrimonio="${el.id}" onclick="editar(this)"><i class="fa fa-edit"></i></button>
-          <button class="btn btn-danger btn-sm" data-patrimonio="${el.id}" onclick="excluir(this)"><i class="fa fa-trash"></i></button>
+          <button type="button" class="btn btn-primary btn-sm" data-patrimonio="${el.id}" onclick="editar(this)"><i class="fa fa-edit"></i></button>
+          <button type="button" class="btn btn-danger btn-sm" data-patrimonio="${el.id}" onclick="excluir(this)"><i class="fa fa-trash"></i></button>
         </td> 
       </tr>`
    // }  
