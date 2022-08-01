@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -10,21 +12,12 @@ import (
 	// "go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type patrimonio struct {
-	Id         string `json:"id"`
-	Tipo       string `json:"tipo"`
-	Modelo     string `json:"modelo"`
-	Observacao string `json:"observacao"`
-}
+var arquivoCSV string
 
-type message struct {
-	Success bool
-	Message string
-}
+func init() {
 
-type resposta struct {
-	Data    interface{}
-	Message interface{}
+	arquivoCSV = "patrimonio.csv"
+
 }
 
 func main() {
@@ -37,7 +30,9 @@ func main() {
 
 	app.Use(cors.New())
 
-	app.Static("/", "./public")
+	app.Static("/api", "./public", fiber.Static{
+		Compress: true,
+	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Render("index", fiber.Map{
@@ -54,61 +49,38 @@ func main() {
 
 	app.Get("/api/patrimonios", func(c *fiber.Ctx) error {
 
-		patrs := []patrimonio{}
-		pat := patrimonio{}
+		patrs, err := ReadCSV(arquivoCSV)
+		checkErr(err)
 
-		pat.Id = "010020010"
-		pat.Tipo = "Computador"
-		pat.Modelo = "DELL Inspire 755"
-		pat.Observacao = "em perfeito estado"
-
-		patrs = append(patrs, pat)
-
-		pat.Id = "010020020"
-		pat.Tipo = "Computador"
-		pat.Modelo = "DELL Inspire 755"
-		pat.Observacao = "em perfeito estado"
-
-		patrs = append(patrs, pat)
-
-		pat.Id = "01002030"
-		pat.Tipo = "Monitor"
-		pat.Modelo = "AOC 21\" "
-		pat.Observacao = ""
-
-		patrs = append(patrs, pat)
-
-		pat.Id = "010020060"
-		pat.Tipo = "Mouse"
-		pat.Modelo = "Gistus"
-		pat.Observacao = "Roda central"
-
-		patrs = append(patrs, pat)
-
-		return c.Status(c.Response().StatusCode()).JSON(patrs)
+		return c.Status(c.Response().StatusCode()).Send(patrs)
 	})
 
 	app.Post("/api/patrimonio/add", func(c *fiber.Ctx) error {
 
-		pat := &patrimonio{}
+		pat := patrimonio{}
 
-		err := c.BodyParser(pat)
+		var dados = &message{}
+
+		err := c.BodyParser(&pat)
 		if err != nil {
-			dados := &message{
-				Success: false,
-				Message: "Erro ao tentar salvar registro.",
-			}
+			dados.Success = false
+			dados.Message = "Erro ao tentar salvar registro."
+		} else {
 
-			return c.Status(fiber.StatusOK).JSON(dados)
+			dados.Success = true
+			dados.Message = "registro salvo com sucesso."
+
 		}
 
-		dados := &message{
-			Success: true,
-			Message: "registro salvo com sucesso.",
-		}
+		txt_csv := pat.Id + ";" + pat.Tipo + ";" + pat.Modelo + ";" + pat.Observacao + "\n"
+
+		fmt.Println(txt_csv)
+
+		data, err := WriteCSV(arquivoCSV, txt_csv)
+		checkErr(err)
 
 		resp := &resposta{}
-		resp.Data = pat
+		resp.Data = data
 		resp.Message = dados
 
 		//return c.JSON(resp)
@@ -147,7 +119,30 @@ func main() {
 	app.Delete("/api/patrimonio/delete", func(c *fiber.Ctx) error {
 
 		pat := &patrimonio{}
-		err := c.BodyParser(pat)
+		err := c.BodyParser(&pat)
+		checkErr(err)
+
+		bytes, err := ReadCSV(arquivoCSV)
+		checkErr(err)
+
+		var jsonresult []patrimonio
+		err = json.Unmarshal(bytes, &jsonresult)
+		checkErr(err)
+
+		//fmt.Println(jsonresult)
+		var novoconteudo []patrimonio
+
+		for index := range jsonresult {
+			if pat.Id != jsonresult[index].Id {
+				novoconteudo = append(novoconteudo, jsonresult[index])
+			}
+		}
+
+		os.Remove(arquivoCSV)
+
+		for i := range novoconteudo {
+			WriteCSV(arquivoCSV, novoconteudo[i].Id+";"+novoconteudo[i].Tipo+";"+novoconteudo[i].Modelo+";"+novoconteudo[i].Observacao+"\n")
+		}
 
 		if err != nil {
 			msg := &message{
@@ -172,6 +167,17 @@ func main() {
 
 	app.Get("/:param", func(c *fiber.Ctx) error {
 		return c.SendString("Parametro: " + c.Params("param"))
+	})
+
+	// Página para testar aplicação em SPA (simple page aplication)
+	app.Get("/api/app", func(c *fiber.Ctx) error {
+
+		return c.Render("app", fiber.Map{
+
+			"Title": "Página Teste",
+			"Dados": nil,
+		})
+
 	})
 
 	app.Listen(":3000")
