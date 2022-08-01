@@ -132,10 +132,10 @@ const editar = (e) => {
   const registro =  e.parentNode.parentNode
   
   $('#patrimonio').val(   $(registro).attr('data-patrimonio') )
-  $('#tipo').val(  $(registro).attr('data-tipo') )
-  $('#modelo').val(  $(registro).attr('data-modelo') )
+  $('#tipo').val(  $(registro).attr('data-tipo')  )
+  $('#modelo').val(  $(registro).attr('data-modelo')  )
   $('#observacao').val(  $(registro).attr('data-observacao') )
-  
+
 
 }
 
@@ -152,7 +152,7 @@ const listar = async (e) => {
    // if ( registro > 0 ) { usar apenas se o csv tiver titulo
       console.log(el)
 
-      html = `<tr data-patrimonio="${el.id}" data-tipo="${el.tipo}" data-tipo="${el.modelo} data-observacao="${el.observacao}">
+      html = `<tr data-patrimonio="${el.id}" data-tipo="${el.tipo}" data-modelo="${el.modelo}" data-observacao="${el.observacao}">
         <td>${el.id}</td>
         <td>${el.tipo}</td>
         <td>${el.modelo}</td>
