@@ -67,7 +67,41 @@ const incluir =  (e) =>  {
 
   console.log(`${patrimonio};${tipo};${modelo};${observacao}\n`)
 
+ if ( `/api/patrimonio/${patrimonio}/exists` ){
+
+  let patrimonio = e.target.patrimonio.value
+  let tipo = e.target.tipo.value
+  let modelo = e.target.modelo.value
+  let observacao = e.target.observacao.value
+
+  console.log(`${patrimonio};${tipo};${modelo};${observacao}\n`)
+
   
+  fetch("/api/patrimonio/update", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json, charset=utf-8",
+    },
+    body: JSON.stringify({
+      "Id": patrimonio,
+      "Tipo": tipo,
+      "Modelo": modelo,
+      "Observacao": observacao
+    })
+  })
+  .then(response => {
+     response.json().then ( r => console.log(r))
+     novo()
+     listar()
+  })
+  .catch(err => {
+    console.error(err);
+  });
+
+
+} else {
+
+
   fetch("/api/patrimonio/add", {
     method: "POST",
     headers: {
@@ -90,11 +124,21 @@ const incluir =  (e) =>  {
   });
 
 
+}
+
+
 
 }
 
 
 const atualizar = (e) => {
+
+
+  $('#patrimonio').val(e.target.patrimonio)
+  $('#tipo').val(e.target.tipo)
+  $('#modelo').val(e.target.modelo)
+  $('#observacao').val(e.target.observacao)
+
 
 }
 

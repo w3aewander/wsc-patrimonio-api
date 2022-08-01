@@ -91,21 +91,41 @@ func main() {
 	app.Put("/api/patrimonio/update", func(c *fiber.Ctx) error {
 
 		pat := &patrimonio{}
-		err := c.BodyParser(pat)
+		err := c.BodyParser(&pat)
+		checkErr(err)
+
+		bytes, err := ReadCSV(arquivoCSV)
+		checkErr(err)
+
+		var jsonresult []patrimonio
+		err = json.Unmarshal(bytes, &jsonresult)
+		checkErr(err)
+
+		//fmt.Println(jsonresult)
+		var novoconteudo []patrimonio
+
+		for index := range jsonresult {
+
+			novoconteudo = append(novoconteudo, jsonresult[index])
+		}
+
+		os.Remove(arquivoCSV)
+
+		for i := range novoconteudo {
+			WriteCSV(arquivoCSV, novoconteudo[i].Id+";"+novoconteudo[i].Tipo+";"+novoconteudo[i].Modelo+";"+novoconteudo[i].Observacao+"\n")
+		}
 
 		if err != nil {
-
 			msg := &message{
 				Success: false,
-				Message: "Erro ao tentar atualizar registro",
+				Message: fmt.Sprintf("Erro ao excluir registro %s.\n", err.Error()),
 			}
-
-			c.Status(fiber.StatusOK).JSON(msg)
+			return c.Status(fiber.AcquireResponse().StatusCode()).JSON(msg)
 		}
 
 		msg := &message{
-			Success: false,
-			Message: "Registro atualizado com sucesso.",
+			Success: true,
+			Message: "Registro excluido com sucesso",
 		}
 
 		resp := &resposta{}
@@ -167,6 +187,48 @@ func main() {
 
 	app.Get("/:param", func(c *fiber.Ctx) error {
 		return c.SendString("Parametro: " + c.Params("param"))
+	})
+
+	app.Get("/api/patrimonio/:patrimonio/exists", func(c *fiber.Ctx) error {
+
+		var existe bool = false
+
+		pat := c.Params("patrimonio")
+
+		bytes, err := ReadCSV(arquivoCSV)
+		checkErr(err)
+
+		var jsonresult []patrimonio
+
+		err = json.Unmarshal(bytes, &jsonresult)
+		checkErr(err)
+
+		for index := range jsonresult {
+			if pat == jsonresult[index].Id {
+				existe = true
+			}
+		}
+
+		var msg = message{}
+
+		if !existe {
+			msg.Success = false
+			msg.Message = fmt.Sprintf("Registro %s não existe", pat)
+
+		} else {
+
+			msg.Success = true
+			msg.Message = "Registro encontrada"
+
+		}
+
+		resp := &resposta{}
+
+		resp.Data = existe
+		resp.Message = msg
+
+		return c.Status(fiber.StatusOK).JSON(resp)
+
 	})
 
 	// Página para testar aplicação em SPA (simple page aplication)
