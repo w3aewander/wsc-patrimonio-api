@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -114,7 +115,7 @@ func main() {
 		os.Remove(arquivoCSV)
 
 		WriteCSV(arquivoCSV, pat.Id+";"+pat.Tipo+";"+pat.Modelo+";"+pat.Observacao+"\n")
-		
+
 		for i := range novoconteudo {
 			WriteCSV(arquivoCSV, novoconteudo[i].Id+";"+novoconteudo[i].Tipo+";"+novoconteudo[i].Modelo+";"+novoconteudo[i].Observacao+"\n")
 		}
@@ -243,6 +244,48 @@ func main() {
 			"Title": "Página Teste",
 			"Dados": nil,
 		})
+
+	})
+
+	app.Post("/api/app/login", func(c *fiber.Ctx) error {
+
+		var usuario_valido = false
+
+		Login := login{}
+
+		c.BodyParser(&Login)
+
+		jsonFile, err := os.Open(`usuarios.json`)
+		checkErr(err)
+
+		//Aqui o arquivo é convertido para uma variável array de bytes, através do pacote "io/ioutil"
+		byteValueJSON, _ := ioutil.ReadAll(jsonFile)
+
+		//Declaração abreviada de um objeto do tipo Book
+		var usuarios []login
+
+		//Conversão da variável byte em um objeto do tipo struct Book
+		json.Unmarshal(byteValueJSON, &usuarios)
+
+		defer jsonFile.Close()
+
+		resp := &resposta{}
+
+		for _, u := range usuarios {
+			usuario_valido = u.Email == Login.Email && u.Senha == Login.Senha
+			fmt.Println("\nEmail cadastrado: " + u.Email + "\nEmail enviado:  " + Login.Email)
+			break
+		}
+
+		if usuario_valido {
+			resp.Message = "Usuários autenticado"
+			resp.Data = true
+		} else {
+			resp.Message = "Acesso não permitido"
+			resp.Data = false
+		}
+
+		return c.Status(fiber.StatusOK).JSON(resp)
 
 	})
 

@@ -1,6 +1,7 @@
 const endpoint = "/api/"
 
 
+
 $( (evt) => {
   
   $("#form-patrimonio").submit( (e) => {
@@ -8,8 +9,78 @@ $( (evt) => {
     incluir(e)
   })
 
+  if ( ! localStorage.getItem("_token_patrimonio") ) {
+
+    alert("Por favor, realize o login para ")
+    
+    const formLogin = `<div class="card" style="display: block;margin: 50px auto;width: 450px;">
+                            <div class="card-header">
+                                 <div class="card-title">
+                                     Autenticação Requerida
+                                  </div>
+                            </div>
+                            <div class="card-body">
+                                <input type="text" class="form-control" id="email" name="email" placeholder="email">
+                                <input type="password" class="form-control" id="senha" email="senha" placeholder="senha">
+                               
+                                <div class="card-text">
+                                   <div id="retorno" class="alert alert-info></div>
+                                 </div>
+                            </div>
+                            <div class="card-footer">
+                               <button  onclick="login();" class="btn btn-primary" id="btn-login">Entrar</button>
+                            </div>
+                         </div>`
+
+    $("body").html(formLogin)
+
+
+  } else {
+
+     const json = JSON.parse( atob(localStorage.getItem("_token_patrimonio") ) )
+     localStorage.setItem("email", json.email) 
+     $("#userinfo").text(json.email)
+     
+  }
+
   listar()
 })
+
+
+const login =  (e) =>  {
+
+  const email  = $("#email").val()
+  const senha = $("#senha").val()
+  let isValid = false
+
+  const credentials = JSON.stringify({"email":email, "senha":senha})
+
+  fetch('/api/app/login', {
+      method: 'POST', 
+      headers: {'Content-type': 'Application/json'},
+      body: credentials
+  })
+    .then ( resp => resp.json() )
+    .then ( resp => { 
+    
+
+     if (resp.Data ){
+        
+        localStorage.setItem("_token_patrimonio", btoa(credentials) )
+
+        isValid = true
+          $("#retorno").text("Ok, autenticado") 
+          location.href="/api/app"
+       } else {
+
+        $("#retorno").text("Acesso negado")
+        localStorage.removeItem("__token_patrimonio")
+        localStorage.removeItem("email")
+     }
+  
+  })
+
+}
 
 const novo = (e) => {
 

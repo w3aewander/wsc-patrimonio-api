@@ -1,5 +1,10 @@
 package main
 
+type login struct {
+	Email string `json:"email"`
+	Senha string `json:"senha"`
+}
+
 type patrimonio struct {
 	Id         string `json:"id"`
 	Tipo       string `json:"tipo"`
