@@ -106,11 +106,15 @@ func main() {
 
 		for index := range jsonresult {
 
-			novoconteudo = append(novoconteudo, jsonresult[index])
+			if jsonresult[index].Id != pat.Id {
+				novoconteudo = append(novoconteudo, jsonresult[index])
+			}
 		}
 
 		os.Remove(arquivoCSV)
 
+		WriteCSV(arquivoCSV, pat.Id+";"+pat.Tipo+";"+pat.Modelo+";"+pat.Observacao+"\n")
+		
 		for i := range novoconteudo {
 			WriteCSV(arquivoCSV, novoconteudo[i].Id+";"+novoconteudo[i].Tipo+";"+novoconteudo[i].Modelo+";"+novoconteudo[i].Observacao+"\n")
 		}
