@@ -141,11 +141,10 @@ func main() {
 		return c.Status(fiber.StatusOK).JSON(resp)
 	})
 
-	app.Delete("/api/patrimonio/delete", func(c *fiber.Ctx) error {
+	app.Delete("/api/patrimonio/:id/delete", func(c *fiber.Ctx) error {
 
 		pat := &patrimonio{}
-		err := c.BodyParser(&pat)
-		checkErr(err)
+		paramId := c.Params("id")
 
 		bytes, err := ReadCSV(arquivoCSV)
 		checkErr(err)
@@ -158,12 +157,13 @@ func main() {
 		var novoconteudo []patrimonio
 
 		for index := range jsonresult {
-			if pat.Id != jsonresult[index].Id {
+			if paramId != jsonresult[index].Id {
 				novoconteudo = append(novoconteudo, jsonresult[index])
 			}
 		}
 
-		os.Remove(arquivoCSV)
+		err = os.Remove(arquivoCSV)
+		checkErr(err)
 
 		for i := range novoconteudo {
 			WriteCSV(arquivoCSV, novoconteudo[i].Id+";"+novoconteudo[i].Tipo+";"+novoconteudo[i].Modelo+";"+novoconteudo[i].Observacao+"\n")

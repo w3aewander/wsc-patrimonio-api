@@ -34,7 +34,7 @@ func WriteCSV(arquivocsv string, dados string) (string, error) {
 	bytesWrited, err := csvFile.WriteString(dados)
 	checkErr(err)
 
-	csvFile.Close()
+	defer csvFile.Close()
 
 	fmt.Printf("%d bytes gravados", bytesWrited)
 	return fmt.Sprintf("%d bytes gravados", bytesWrited), err
@@ -67,6 +67,7 @@ func ReadCSV(arquivocsv string) ([]byte, error) {
 
 	}
 
+	defer csvFile.Close()
 	var res []byte
 
 	res, err = json.Marshal(patrs)
